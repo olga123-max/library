@@ -885,5 +885,5 @@ const books = [
         cover: './images/covers/book-060.jpg',
         description: 'Секреты интенсивного обучения.',
         series: null
-    },
+    }
 ];
