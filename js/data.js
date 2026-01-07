@@ -870,6 +870,20 @@ const books = [
         genreKeys: ['business'],
         cover: './images/covers/book-059.jpg',
         description: 'Эффективные продажи — это искусство, которому можно научиться. Масса конкретных рекомендаций по продажам в различных секторах рынка.',
+        series: null 
+    },
+    {
+        id: 60,
+        shelfNumber: 60,
+        title: 'Тренинг для тренеров на 100%',
+        author: 'Жадько Наталья, Чуркина Мария',
+        publisher: null,
+        year: 2005,
+        isbn: Альпина,
+        genres: ['Образование', 'Управление персоналом', 'Саморазвитие'],
+        genreKeys: ['business', 'psychology'],
+        cover: './images/covers/book-060.jpg',
+        description: 'Секреты интенсивного обучения.',
         series: null
-    }
+    },
 ];
