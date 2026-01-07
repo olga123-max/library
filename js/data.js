@@ -879,7 +879,7 @@ const books = [
         author: 'Жадько Наталья, Чуркина Мария',
         publisher: null,
         year: 2005,
-        isbn: "Альпина",
+        isbn: 'Альпина',
         genres: ['Образование', 'Управление персоналом', 'Саморазвитие'],
         genreKeys: ['business', 'psychology'],
         cover: './images/covers/book-060.jpg',
