@@ -3065,3 +3065,4 @@ const books = [
   hasAutograph: false
 }
 // === END REPLACE BLOCK: 176–204 ===
+];
