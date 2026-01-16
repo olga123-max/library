@@ -13,7 +13,7 @@ class Library {
             sort: 'shelf-asc',
             search: ''
         };
-        
+
         this.init();
     }
 
@@ -31,24 +31,24 @@ class Library {
         this.emptyState = document.getElementById('emptyState');
         this.modal = document.getElementById('bookModal');
         this.modalContent = document.getElementById('modalContent');
-        
+
         // Search
         this.searchInput = document.getElementById('searchInput');
         this.clearSearchBtn = document.getElementById('clearSearchBtn');
-        
+
         // Filters
         this.favoriteFilter = document.getElementById('favoriteFilter');
         this.genreFilter = document.getElementById('genreFilter');
         this.sortFilter = document.getElementById('sortFilter');
-        
+
         // View buttons
         this.gridViewBtn = document.getElementById('gridViewBtn');
         this.listViewBtn = document.getElementById('listViewBtn');
-        
+
         // Stats
         this.totalBooksEl = document.getElementById('totalBooks');
         this.likedCountEl = document.getElementById('likedCount');
-        
+
         // Modal
         this.closeModalBtn = document.getElementById('closeModalBtn');
         this.modalOverlay = this.modal.querySelector('.modal-overlay');
@@ -58,20 +58,20 @@ class Library {
         // Search
         this.searchInput.addEventListener('input', (e) => this.onSearchInput(e));
         this.clearSearchBtn.addEventListener('click', () => this.clearSearch());
-        
+
         // Filters
         this.favoriteFilter.addEventListener('change', () => this.onFilterChange());
         this.genreFilter.addEventListener('change', () => this.onFilterChange());
         this.sortFilter.addEventListener('change', () => this.onFilterChange());
-        
+
         // View toggle
         this.gridViewBtn.addEventListener('click', () => this.setView('grid'));
         this.listViewBtn.addEventListener('click', () => this.setView('list'));
-        
+
         // Modal close
         this.closeModalBtn.addEventListener('click', () => this.closeModal());
         this.modalOverlay.addEventListener('click', () => this.closeModal());
-        
+
         // Keyboard
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') this.closeModal();
@@ -99,13 +99,13 @@ class Library {
 
     toggleLike(bookId) {
         const index = this.likedBooks.indexOf(bookId);
-        
+
         if (index > -1) {
             this.likedBooks.splice(index, 1);
         } else {
             this.likedBooks.push(bookId);
         }
-        
+
         this.saveLikes();
         this.render();
         this.updateStats();
@@ -115,7 +115,6 @@ class Library {
         return this.likedBooks.includes(bookId);
     }
 
-    // === Filtering & Sorting ===
     // === Search ===
     onSearchInput(e) {
         this.filters.search = e.target.value.toLowerCase().trim();
@@ -133,7 +132,7 @@ class Library {
     // === Filtering ===
     getFilteredBooks() {
         let filtered = [...this.books];
-        
+
         // Filter by search
         if (this.filters.search) {
             filtered = filtered.filter(book => {
@@ -142,54 +141,63 @@ class Library {
                 const subtitle = (book.subtitle || '').toLowerCase();
                 const author = (book.author || '').toLowerCase();
                 const shelfNumber = String(book.shelfNumber || book.id);
-                
-                return title.includes(searchStr) || 
-                       subtitle.includes(searchStr) || 
-                       author.includes(searchStr) ||
-                       shelfNumber.includes(searchStr);
+
+                return title.includes(searchStr) ||
+                    subtitle.includes(searchStr) ||
+                    author.includes(searchStr) ||
+                    shelfNumber.includes(searchStr);
             });
         }
-        
+
         // Filter by favorites
         if (this.filters.favorite === 'liked') {
             filtered = filtered.filter(book => this.isLiked(book.id));
         } else if (this.filters.favorite === 'signed') {
             filtered = filtered.filter(book => book.hasAutograph === true);
         }
-        
-        // Filter by genre
+
+        // Filter by genre (по genreKeys)
         if (this.filters.genre !== 'all') {
-            filtered = filtered.filter(book => 
-                book.genreKeys && book.genreKeys.includes(this.filters.genre)
+            filtered = filtered.filter(book =>
+                Array.isArray(book.genreKeys) && book.genreKeys.includes(this.filters.genre)
             );
         }
-        
+
         // Sort
         filtered = this.sortBooks(filtered, this.filters.sort);
-        
+
         return filtered;
     }
 
     sortBooks(booksArray, sortBy) {
         const sorted = [...booksArray];
-        
-        switch(sortBy) {
+
+        switch (sortBy) {
             case 'shelf-asc':
                 return sorted.sort((a, b) => (a.shelfNumber || a.id) - (b.shelfNumber || b.id));
+
             case 'shelf-desc':
                 return sorted.sort((a, b) => (b.shelfNumber || b.id) - (a.shelfNumber || a.id));
+
+            // ✅ ВАЖНО: безопасная сортировка по title (не падает, если title = null)
             case 'title-asc':
-                return sorted.sort((a, b) => a.title.localeCompare(b.title, 'ru'));
+                return sorted.sort((a, b) => (a.title || '').localeCompare((b.title || ''), 'ru'));
+
             case 'title-desc':
-                return sorted.sort((a, b) => b.title.localeCompare(a.title, 'ru'));
+                return sorted.sort((a, b) => (b.title || '').localeCompare((a.title || ''), 'ru'));
+
             case 'author-asc':
-                return sorted.sort((a, b) => (a.author || '').localeCompare(b.author || '', 'ru'));
+                return sorted.sort((a, b) => (a.author || '').localeCompare((b.author || ''), 'ru'));
+
             case 'author-desc':
-                return sorted.sort((a, b) => (b.author || '').localeCompare(a.author || '', 'ru'));
+                return sorted.sort((a, b) => (b.author || '').localeCompare((a.author || ''), 'ru'));
+
             case 'year-desc':
                 return sorted.sort((a, b) => (b.year || 0) - (a.year || 0));
+
             case 'year-asc':
                 return sorted.sort((a, b) => (a.year || 0) - (b.year || 0));
+
             default:
                 return sorted;
         }
@@ -205,41 +213,45 @@ class Library {
     // === View ===
     setView(view) {
         this.currentView = view;
-        
+
         this.gridViewBtn.classList.toggle('active', view === 'grid');
         this.listViewBtn.classList.toggle('active', view === 'list');
-        
+
         this.booksContainer.classList.toggle('list-view', view === 'list');
     }
 
     // === Rendering ===
     render() {
         const filteredBooks = this.getFilteredBooks();
-        
+
         if (filteredBooks.length === 0) {
             this.booksContainer.style.display = 'none';
             this.emptyState.style.display = 'flex';
             return;
         }
-        
+
         this.booksContainer.style.display = 'grid';
         this.emptyState.style.display = 'none';
-        
-        this.booksContainer.innerHTML = filteredBooks.map(book => 
+
+        this.booksContainer.innerHTML = filteredBooks.map(book =>
             this.createBookCard(book)
         ).join('');
-        
+
         // Attach event listeners
         filteredBooks.forEach(book => {
             const card = document.querySelector(`[data-book-id="${book.id}"]`);
+            if (!card) return;
+
             const likeBtn = card.querySelector('.like-btn');
-            
+
             // Like button
-            likeBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                this.toggleLike(book.id);
-            });
-            
+            if (likeBtn) {
+                likeBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.toggleLike(book.id);
+                });
+            }
+
             // Card click
             card.addEventListener('click', () => {
                 this.openModal(book);
@@ -250,7 +262,9 @@ class Library {
     createBookCard(book) {
         const liked = this.isLiked(book.id);
         const heartIcon = liked ? 'fas fa-heart' : 'far fa-heart';
-        
+
+        const safeTitle = book.title || 'Без названия';
+
         return `
             <div class="book-card" data-book-id="${book.id}">
                 <div class="book-shelf-number" title="Номер на полке">№${book.shelfNumber || book.id}</div>
@@ -259,11 +273,11 @@ class Library {
                     <i class="${heartIcon}"></i>
                 </button>
                 <div class="book-cover">
-                    <img src="${book.cover}" alt="${book.title}" loading="lazy" 
-                         onerror="this.src='https://via.placeholder.com/300x400?text=${encodeURIComponent(book.title)}'">
+                    <img src="${book.cover}" alt="${safeTitle}" loading="lazy"
+                         onerror="this.src='https://via.placeholder.com/300x400?text=${encodeURIComponent(safeTitle)}'">
                 </div>
                 <div class="book-info">
-                    <h3 class="book-title">${book.title}</h3>
+                    <h3 class="book-title">${safeTitle}</h3>
                     ${book.subtitle ? `<p class="book-subtitle">${book.subtitle}</p>` : ''}
                     <p class="book-author">${book.author || 'Автор не указан'}</p>
                     <div class="book-meta">
@@ -284,23 +298,25 @@ class Library {
     openModal(book) {
         const liked = this.isLiked(book.id);
         const heartIcon = liked ? 'fas fa-heart' : 'far fa-heart';
-        
+
+        const safeTitle = book.title || 'Без названия';
+
         this.modalContent.innerHTML = `
             <div class="modal-book">
                 <div class="modal-cover">
                     <div class="modal-shelf-number">№${book.shelfNumber || book.id}</div>
-                    <img src="${book.cover}" alt="${book.title}" 
-                         onerror="this.src='https://via.placeholder.com/300x450?text=${encodeURIComponent(book.title)}'">
+                    <img src="${book.cover}" alt="${safeTitle}"
+                         onerror="this.src='https://via.placeholder.com/300x450?text=${encodeURIComponent(safeTitle)}'">
                 </div>
                 <div class="modal-info">
-                    <h2 class="modal-title">${book.title}</h2>
+                    <h2 class="modal-title">${safeTitle}</h2>
                     ${book.subtitle ? `<p class="modal-subtitle">${book.subtitle}</p>` : ''}
-                    
+
                     <button class="modal-like-btn ${liked ? 'liked' : ''}" data-book-id="${book.id}">
                         <i class="${heartIcon}"></i>
                         <span>${liked ? 'В избранном' : 'Добавить в избранное'}</span>
                     </button>
-                    
+
                     <div class="modal-meta">
                         ${book.author ? `
                             <div class="modal-meta-item">
@@ -308,35 +324,35 @@ class Library {
                                 <span><strong>Автор:</strong> ${book.author}</span>
                             </div>
                         ` : ''}
-                        
+
                         ${book.publisher ? `
                             <div class="modal-meta-item">
                                 <i class="fas fa-building"></i>
                                 <span><strong>Издательство:</strong> ${book.publisher}</span>
                             </div>
                         ` : ''}
-                        
+
                         ${book.year ? `
                             <div class="modal-meta-item">
                                 <i class="fas fa-calendar"></i>
                                 <span><strong>Год:</strong> ${book.year}</span>
                             </div>
                         ` : ''}
-                        
+
                         ${book.hasAutograph ? `
                             <div class="modal-meta-item autograph-item">
                                 <i class="fas fa-pen-fancy"></i>
                                 <span><strong>✍️ С автографом</strong></span>
                             </div>
                         ` : ''}
-                        
+
                         ${book.isbn ? `
                             <div class="modal-meta-item">
                                 <i class="fas fa-barcode"></i>
                                 <span><strong>ISBN:</strong> ${book.isbn}</span>
                             </div>
                         ` : ''}
-                        
+
                         ${book.series ? `
                             <div class="modal-meta-item">
                                 <i class="fas fa-book"></i>
@@ -344,14 +360,14 @@ class Library {
                             </div>
                         ` : ''}
                     </div>
-                    
+
                     ${book.description ? `
                         <div class="modal-description">
                             <h4><i class="fas fa-align-left"></i> Описание</h4>
                             <p>${book.description}</p>
                         </div>
                     ` : ''}
-                    
+
                     ${book.genres && book.genres.length > 0 ? `
                         <div class="modal-genres">
                             <h4><i class="fas fa-tags"></i> Жанры</h4>
@@ -363,7 +379,7 @@ class Library {
                 </div>
             </div>
         `;
-        
+
         // Add like button event
         const modalLikeBtn = this.modalContent.querySelector('.modal-like-btn');
         if (modalLikeBtn) {
@@ -372,7 +388,7 @@ class Library {
                 this.openModal(book); // Re-render modal
             });
         }
-        
+
         this.modal.classList.add('active');
         document.body.style.overflow = 'hidden';
     }
