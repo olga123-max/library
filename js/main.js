@@ -14,6 +14,30 @@ class Library {
             search: ''
         };
 
+        // Маппинг значений из menu (genreFilter.value) -> русские жанры из book.genres
+        // Нужен как fallback, потому что в data.js часто genreKeys не заполнены
+        this.genreValueToRuGenres = {
+            business: ['Бизнес'],
+            psychology: ['Психология'],
+            career: ['Карьера'],
+            education: ['Образование'],
+
+            leadership: ['Лидерство'],
+            selfDevelopment: ['Саморазвитие', 'Саморазвитие и мотивация'],
+
+            hr: ['HR'],
+            personnelManagement: ['Кадровый менеджмент', 'Кадровый менеджмент.', 'Кадровое дело', 'Управление персоналом'],
+
+            creativity: ['Креативность'],
+            coaching: ['Коучинг'],
+            teamwork: ['Командная работа'],
+            innovation: ['Инновации'],
+
+            management: ['Менеджмент', 'Менеджмент и управление', 'Управление'],
+            conflictology: ['Конфликтология'],
+            trainings: ['Тренинги', 'Тренинг', 'Обучение', 'Тренинг.']
+        };
+
         this.init();
     }
 
@@ -129,6 +153,28 @@ class Library {
         this.render();
     }
 
+    // === Helpers ===
+    normalizeRuGenre(g) {
+        return String(g || '').trim().toLowerCase();
+    }
+
+    bookMatchesGenre(book, selectedValue) {
+        if (!book || selectedValue === 'all') return true;
+
+        // 1) Основной способ: genreKeys (как и было)
+        if (Array.isArray(book.genreKeys) && book.genreKeys.includes(selectedValue)) {
+            return true;
+        }
+
+        // 2) Fallback: проверяем русские жанры book.genres
+        const ruWanted = this.genreValueToRuGenres[selectedValue];
+        if (!ruWanted || ruWanted.length === 0) return false;
+
+        const bookGenresRu = Array.isArray(book.genres) ? book.genres : [];
+        const bookGenresSet = new Set(bookGenresRu.map(g => this.normalizeRuGenre(g)));
+        return ruWanted.some(w => bookGenresSet.has(this.normalizeRuGenre(w)));
+    }
+
     // === Filtering ===
     getFilteredBooks() {
         let filtered = [...this.books];
@@ -156,11 +202,9 @@ class Library {
             filtered = filtered.filter(book => book.hasAutograph === true);
         }
 
-        // Filter by genre (по genreKeys)
+        // Filter by genre (genreKeys + fallback по genres)
         if (this.filters.genre !== 'all') {
-            filtered = filtered.filter(book =>
-                Array.isArray(book.genreKeys) && book.genreKeys.includes(this.filters.genre)
-            );
+            filtered = filtered.filter(book => this.bookMatchesGenre(book, this.filters.genre));
         }
 
         // Sort
@@ -179,7 +223,7 @@ class Library {
             case 'shelf-desc':
                 return sorted.sort((a, b) => (b.shelfNumber || b.id) - (a.shelfNumber || a.id));
 
-            // ✅ ВАЖНО: безопасная сортировка по title (не падает, если title = null)
+            // Безопасная сортировка по title
             case 'title-asc':
                 return sorted.sort((a, b) => (a.title || '').localeCompare((b.title || ''), 'ru'));
 
@@ -262,7 +306,6 @@ class Library {
     createBookCard(book) {
         const liked = this.isLiked(book.id);
         const heartIcon = liked ? 'fas fa-heart' : 'far fa-heart';
-
         const safeTitle = book.title || 'Без названия';
 
         return `
@@ -298,7 +341,6 @@ class Library {
     openModal(book) {
         const liked = this.isLiked(book.id);
         const heartIcon = liked ? 'fas fa-heart' : 'far fa-heart';
-
         const safeTitle = book.title || 'Без названия';
 
         this.modalContent.innerHTML = `
@@ -358,7 +400,7 @@ class Library {
                                 <i class="fas fa-book"></i>
                                 <span><strong>Серия:</strong> ${book.series}</span>
                             </div>
-                        ` : ''}
+                        ` : '' }
                     </div>
 
                     ${book.description ? `
@@ -380,12 +422,11 @@ class Library {
             </div>
         `;
 
-        // Add like button event
         const modalLikeBtn = this.modalContent.querySelector('.modal-like-btn');
         if (modalLikeBtn) {
             modalLikeBtn.addEventListener('click', () => {
                 this.toggleLike(book.id);
-                this.openModal(book); // Re-render modal
+                this.openModal(book);
             });
         }
 
