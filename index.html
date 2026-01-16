@@ -77,12 +77,34 @@
                         <i class="fas fa-tag"></i>
                         Жанр:
                     </label>
+
+                    <!--
+                      ВАЖНО: value = genreKeys (англ. ключи из data.js),
+                      потому что main.js фильтрует по book.genreKeys.includes(value)
+                      [Source](https://raw.githubusercontent.com/olga123-max/library/main/js/main.js)
+                    -->
                     <select id="genreFilter">
                         <option value="all">Все жанры</option>
+
                         <option value="business">Бизнес</option>
+
                         <option value="psychology">Психология</option>
-                        <option value="career">Карьера</option>
+                        <option value="leadership">Лидерство</option>
+                        <option value="selfDevelopment">Саморазвитие</option>
+
+                        <option value="hr">HR</option>
+                        <option value="personnelManagement">Кадровый менеджмент</option>
+
                         <option value="education">Образование</option>
+                        <option value="creativity">Креативность</option>
+
+                        <option value="coaching">Коучинг</option>
+                        <option value="teamwork">Командная работа</option>
+                        <option value="innovation">Инновации</option>
+
+                        <option value="management">Менеджмент и управление</option>
+                        <option value="conflictology">Конфликтология</option>
+                        <option value="trainings">Тренинги</option>
                     </select>
                 </div>
 
