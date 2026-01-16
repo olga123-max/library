@@ -2681,7 +2681,7 @@ const books = [
   hasAutograph: false
 },
 {
-  id: 181,
+   id: 181,
   shelfNumber: 181,
   title: 'Путеводитель по кадровому менеджменту. Выпуск II. Оценка персонала',
   subtitle: null,
@@ -2691,7 +2691,7 @@ const books = [
   isbn: null,
   genres: ['Бизнес', 'HR', 'Кадровый менеджмент'],
   genreKeys: ['business'],
-  cover: './images/covers/book-181.jpg',
+  cover: './images/covers/book-182.jpg',
   description: 'Практическое руководство по оценке персонала: инструменты, процедуры и примеры для кадровой службы.',
   series: null,
   hasAutograph: false
@@ -2707,7 +2707,7 @@ const books = [
   isbn: null,
   genres: ['Бизнес', 'Маркетинг', 'Копирайтинг'],
   genreKeys: ['business'],
-  cover: './images/covers/book-182.jpg',
+  cover: './images/covers/book-184.jpg',
   description: 'Практические приёмы создания рекламных и продающих текстов: структура, аргументация и типовые форматы.',
   series: null,
   hasAutograph: false
@@ -2723,7 +2723,7 @@ const books = [
   isbn: null,
   genres: ['Образование', 'Креативность', 'Саморазвитие'],
   genreKeys: ['education', 'creativity'],
-  cover: './images/covers/book-183.jpg',
+  cover: './images/covers/book-181.jpg',
   description: 'Продвинутые техники скетчноутинга: как делать визуальные заметки, структурировать и запоминать информацию.',
   series: null,
   hasAutograph: false
@@ -2739,7 +2739,7 @@ const books = [
   isbn: null,
   genres: ['Психология', 'Лидерство', 'Саморазвитие'],
   genreKeys: ['psychology', 'career'],
-  cover: './images/covers/book-184.jpg',
+  cover: './images/covers/book-183.jpg',
   description: 'О нравственных основах лидерства, личной ответственности и формировании характера руководителя.',
   series: null,
   hasAutograph: false
